@@ -19,4 +19,6 @@ public class AppInjector extends AbstractModule {
     LoginPresentationModel loginPresentationModelProvider() {
         return new LoginPresentationModel(userProvider());
     }
+
+
 }

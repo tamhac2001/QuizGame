@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import com.google.inject.Inject;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -27,9 +28,10 @@ public class LoginForm extends JFrame {
     }
 
     public void initState() {
+//        mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         setContentPane(mainPanel);
-        setSize(600, 400);
+        setSize(500, 300);
         setTitle("Quiz Game");
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         // frame appear middle of the screen

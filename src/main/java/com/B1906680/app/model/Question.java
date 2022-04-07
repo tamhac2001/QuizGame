@@ -22,7 +22,7 @@ public class Question {
     @SerializedName("incorrect_answers")
     List<String> incorrectAnswers;
 
-    private static final String GET_URL = "https://opentdb.com/api.php?amount=2&type=multiple";
+    private static final String GET_URL = "https://opentdb.com/api.php?amount=10&type=multiple";
 
 
     public static @Nullable List<Question> questionList() throws IOException {

@@ -2,10 +2,8 @@ package com.B1906680.app.presentation_model;
 
 import com.B1906680.app.model.Question;
 import lombok.Getter;
+import lombok.Setter;
 
-import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -16,6 +14,16 @@ public class GamePresentationModel {
 
     @Getter
     private int currentQuestionIndex = 0;
+
+    @Getter
+    private int correctAnswerCounter = 0;
+
+    @Getter
+    @Setter
+    private int userAnswerIndex = 0;
+
+    @Getter
+    private int correctAnswerIndex;
 
     public GamePresentationModel(List<Question> questionList) throws IOException {
         this.questionList = questionList;
@@ -37,14 +45,23 @@ public class GamePresentationModel {
         return currentQuestion().getIncorrectAnswers();
     }
 
-    public int correctAnswerNumber() {
+    private int correctAnswerIndex() {
         return ThreadLocalRandom.current().nextInt(1, 4 + 1);
+    }
 
+    public void updateCorrectAnswerIndex(){
+        correctAnswerIndex = correctAnswerIndex();
     }
 
     private Question currentQuestion() {
         return questionList.get(currentQuestionIndex);
     }
 
+    public boolean checkUserAnswer(){
+        return userAnswerIndex == correctAnswerIndex();
+    }
 
+    public void increaseCorrectAnswerCounter(){
+        correctAnswerCounter++;
+    }
 }
