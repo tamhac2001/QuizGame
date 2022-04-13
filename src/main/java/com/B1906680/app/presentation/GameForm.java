@@ -5,16 +5,11 @@ import com.B1906680.app.presentation_model.GamePresentationModel;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
-import sun.applet.Main;
 
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
 
 public class GameForm extends JFrame {
@@ -91,20 +86,19 @@ public class GameForm extends JFrame {
 
         currentQuestionOnTotalQuestion.setSize(30, 30);
 
-        int counter = 1;
+        int buttonIndex = 1;
         for (JToggleButton button : buttons) {
-            int finalCounter = counter;
+            int finalButtonIndex = buttonIndex;
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    presentationModel.setUserAnswerIndex(finalCounter);
+                    presentationModel.setUserAnswerIndex(finalButtonIndex);
+                    System.out.println("User select:" + finalButtonIndex);
                 }
             });
-            counter++;
+            buttonIndex++;
         }
 
-
-//        questionLabel.add(currentQuestionOnTotalQuestion);
         updateState();
         timer.addActionListener(new ActionListener() {
             int counter = 10;
@@ -114,20 +108,22 @@ public class GameForm extends JFrame {
             public void actionPerformed(ActionEvent e) {
                 counter--;
                 timeProgressBar.setValue(counter);
-                if (counter == 0) {
-                    counter = 10;
+                if (counter == -1) {
+                    updateStateWhenOutOfTime();
                     final boolean isUserAnswerCorrect = presentationModel.checkUserAnswer();
                     if (isUserAnswerCorrect) {
                         presentationModel.increaseCorrectAnswerCounter();
-                    } else {
-
                     }
-//                    Thread.sleep(100);
+                }
+                if (counter == -4) {
+                    counter = 10;
                     presentationModel.toNextQuestion();
                     if (presentationModel.getCurrentQuestionIndex() < presentationModel.getQuestionList().size()) {
+                        resetState();
                         updateState();
                     } else {
                         timer.stop();
+                        // TODO: to next screen
                     }
                 }
             }
@@ -138,18 +134,13 @@ public class GameForm extends JFrame {
 
     public void updateState() {
         this.questionLabel.setText(htmlToText(presentationModel.question()));
-        this.pointLabel.setText(String.valueOf(presentationModel.getCorrectAnswerCounter()*100) + " diem");
+        this.pointLabel.setText(String.valueOf(presentationModel.getCorrectAnswerCounter() * 100) + " diem");
         this.currentQuestionOnTotalQuestion.setText(presentationModel.getCurrentQuestionIndex() + 1 + "/" + 10);
-        // reset userAnswer to 0;
-        this.presentationModel.setUserAnswerIndex(0);
-        // reset the button value to empty
-        for (JToggleButton button : buttons) {
-            button.setText("");
-            button.setSelected(false);
-        }
-        // random correct answer
+
+        // get random correct answer
         presentationModel.updateCorrectAnswerIndex();
-        switch (this.presentationModel.getCurrentQuestionIndex()) {
+        System.out.println("Correct answer index :" + presentationModel.getCorrectAnswerIndex());
+        switch (this.presentationModel.getCorrectAnswerIndex()) {
             case 1: {
                 this.answer1.setText(htmlToText(presentationModel.correctAnswer()));
                 break;
@@ -162,7 +153,7 @@ public class GameForm extends JFrame {
                 this.answer3.setText(htmlToText(presentationModel.correctAnswer()));
                 break;
             }
-            default: {
+            case 4: {
                 this.answer4.setText(htmlToText(presentationModel.correctAnswer()));
                 break;
             }
@@ -177,6 +168,63 @@ public class GameForm extends JFrame {
         }
     }
 
+    public void updateStateWhenOutOfTime() {
+//        for (JToggleButton button : buttons) {
+//            button.setSelected(false);
+//        }
+        buttonGroup.clearSelection();
+
+        if (presentationModel.getUserAnswerIndex() != presentationModel.getCorrectAnswerIndex()) {
+            switch (this.presentationModel.getUserAnswerIndex()) {
+                case 1: {
+                    this.answer1.setBackground(Color.red);
+                    break;
+                }
+                case 2: {
+                    this.answer2.setBackground(Color.red);
+                    break;
+                }
+                case 3: {
+                    this.answer3.setBackground(Color.red);
+                    break;
+                }
+                case 4: {
+                    this.answer4.setBackground(Color.red);
+                    break;
+                }
+
+            }
+        }
+        switch (this.presentationModel.getCorrectAnswerIndex()) {
+            case 1: {
+                this.answer1.setBackground(Color.green);
+                break;
+            }
+            case 2: {
+                this.answer2.setBackground(Color.green);
+                break;
+            }
+            case 3: {
+                this.answer3.setBackground(Color.green);
+                break;
+            }
+            default: {
+                this.answer4.setBackground(Color.green);
+                break;
+            }
+        }
+    }
+
+    public void resetState() {
+        // reset userAnswer to 0;
+        this.presentationModel.setUserAnswerIndex(0);
+        // reset to initial button
+        buttonGroup.clearSelection();
+        for (JToggleButton button : buttons) {
+            button.setText("");
+            button.setBackground(Color.WHITE);
+        }
+    }
 
     private @NotNull String htmlToText(String html) {
         return Jsoup.parse(html).text();

@@ -45,23 +45,23 @@ public class GamePresentationModel {
         return currentQuestion().getIncorrectAnswers();
     }
 
-    private int correctAnswerIndex() {
+    private int randomCorrectAnswerIndex() {
         return ThreadLocalRandom.current().nextInt(1, 4 + 1);
     }
 
-    public void updateCorrectAnswerIndex(){
-        correctAnswerIndex = correctAnswerIndex();
+    public void updateCorrectAnswerIndex() {
+        correctAnswerIndex = randomCorrectAnswerIndex();
     }
 
     private Question currentQuestion() {
         return questionList.get(currentQuestionIndex);
     }
 
-    public boolean checkUserAnswer(){
-        return userAnswerIndex == correctAnswerIndex();
+    public boolean checkUserAnswer() {
+        return userAnswerIndex == correctAnswerIndex;
     }
 
-    public void increaseCorrectAnswerCounter(){
+    public void increaseCorrectAnswerCounter() {
         correctAnswerCounter++;
     }
 }
