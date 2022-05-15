@@ -4,12 +4,15 @@ import com.B1906680.app.model.Question;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.inject.Inject;
+import javax.inject.Named;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class GamePresentationModel {
     @Getter
+    @Named(value = "question_list")
     private final List<Question> questionList;
 
     @Getter
@@ -25,7 +28,8 @@ public class GamePresentationModel {
     @Getter
     private int correctAnswerIndex;
 
-    public GamePresentationModel(List<Question> questionList) throws IOException {
+    @Inject
+    public GamePresentationModel(List<Question> questionList) {
         this.questionList = questionList;
     }
 
@@ -34,7 +38,7 @@ public class GamePresentationModel {
     }
 
     public String question() {
-        return currentQuestion().getQuestion();
+        return currentQuestion().getQuestionString();
     }
 
     public String correctAnswer() {
@@ -63,5 +67,10 @@ public class GamePresentationModel {
 
     public void increaseCorrectAnswerCounter() {
         correctAnswerCounter++;
+    }
+
+    public void updateQuestion(boolean userDidAnswerCorrect) {
+        Question currentQuestion = questionList.get(currentQuestionIndex);
+        questionList.set(currentQuestionIndex, currentQuestion.withUserDidAnswerCorrect(userDidAnswerCorrect));
     }
 }

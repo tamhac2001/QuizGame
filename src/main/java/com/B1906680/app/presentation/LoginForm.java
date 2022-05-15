@@ -1,15 +1,12 @@
 package com.B1906680.app.presentation;
 
 import com.B1906680.app.presentation_model.LoginPresentationModel;
+import com.B1906680.app.utils.AppComponent;
+import com.B1906680.app.utils.DaggerAppComponent;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.google.inject.Inject;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.IOException;
 
 
 public class LoginForm extends JFrame {
@@ -19,16 +16,15 @@ public class LoginForm extends JFrame {
     private JButton dangNhapButton;
     private JButton dangKyButton;
     private final LoginPresentationModel presentationModel;
+    private final AppComponent appComponent;
 
-    //    private final LoginPresentationModel presentationModel= new LoginPresentationModel();
-    @Inject
-    public LoginForm(LoginPresentationModel presentationModel) {
+    public LoginForm(LoginPresentationModel presentationModel, AppComponent appComponent) {
         this.presentationModel = presentationModel;
 
+        this.appComponent = appComponent;
     }
 
     public void initState() {
-//        mainPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         mainPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         setContentPane(mainPanel);
         setSize(500, 300);
@@ -37,18 +33,8 @@ public class LoginForm extends JFrame {
         // frame appear middle of the screen
         setLocationRelativeTo(null);
         setVisible(true);
-        dangKyButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dangKyButtonClicked();
-            }
-        });
-        dangNhapButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                dangNhapButtonClicked();
-            }
-        });
+        dangKyButton.addActionListener(e -> dangKyButtonClicked());
+        dangNhapButton.addActionListener(e -> dangNhapButtonClicked());
     }
 
     private void dangKyButtonClicked() {
@@ -64,14 +50,11 @@ public class LoginForm extends JFrame {
     private void dangNhapButtonClicked() {
         String successOrError = this.presentationModel.singInWithEmailAndPassword(this.email.getText(), String.valueOf(this.password.getPassword()));
         if (successOrError.equals("success")) {
-            try {
-                new GameForm().initState();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            GameForm gameForm = new GameForm(appComponent.buildGamePresentationModel(),appComponent);
+            gameForm.initState();
+            dispose();
         } else {
             JOptionPane.showMessageDialog(this, "Wrong email or password", "Sign in", JOptionPane.INFORMATION_MESSAGE);
         }
-        dispose();
     }
 }

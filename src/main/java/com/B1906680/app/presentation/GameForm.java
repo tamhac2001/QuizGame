@@ -1,7 +1,8 @@
 package com.B1906680.app.presentation;
 
-import com.B1906680.app.model.Question;
 import com.B1906680.app.presentation_model.GamePresentationModel;
+import com.B1906680.app.presentation_model.GameResultPresentationModel;
+import com.B1906680.app.utils.AppComponent;
 import lombok.SneakyThrows;
 import org.jetbrains.annotations.NotNull;
 import org.jsoup.Jsoup;
@@ -10,7 +11,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.IOException;
 
 public class GameForm extends JFrame {
     private JPanel mainPanel;
@@ -18,14 +18,16 @@ public class GameForm extends JFrame {
     private JToggleButton answer1;
     private JToggleButton answer4;
     private JToggleButton answer3;
-    private ButtonGroup buttonGroup;
+    private final ButtonGroup buttonGroup;
     private final JToggleButton[] buttons = {answer1, answer2, answer3, answer4};
     private JLabel questionLabel;
     private JLabel currentQuestionOnTotalQuestion;
     private JProgressBar timeProgressBar;
     private JLabel pointLabel;
 
-    private final GamePresentationModel presentationModel = new GamePresentationModel(Question.questionList());
+    private final transient GamePresentationModel presentationModel;
+    private final AppComponent appComponent;
+
 
     public JPanel getMainPanel() {
         return mainPanel;
@@ -62,7 +64,9 @@ public class GameForm extends JFrame {
     private final Timer timer = new Timer(1000, null);
 
 
-    public GameForm() throws IOException {
+    public GameForm(GamePresentationModel presentationModel, AppComponent appComponent) {
+        this.presentationModel = presentationModel;
+        this.appComponent = appComponent;
         buttonGroup = new ButtonGroup();
         buttonGroup.add(answer1);
         buttonGroup.add(answer2);
@@ -89,12 +93,8 @@ public class GameForm extends JFrame {
         int buttonIndex = 1;
         for (JToggleButton button : buttons) {
             int finalButtonIndex = buttonIndex;
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    presentationModel.setUserAnswerIndex(finalButtonIndex);
-                    System.out.println("User select:" + finalButtonIndex);
-                }
+            button.addActionListener(e -> {
+                presentationModel.setUserAnswerIndex(finalButtonIndex);
             });
             buttonIndex++;
         }
@@ -111,6 +111,7 @@ public class GameForm extends JFrame {
                 if (counter == -1) {
                     updateStateWhenOutOfTime();
                     final boolean isUserAnswerCorrect = presentationModel.checkUserAnswer();
+                    presentationModel.updateQuestion(isUserAnswerCorrect);
                     if (isUserAnswerCorrect) {
                         presentationModel.increaseCorrectAnswerCounter();
                     }
@@ -123,7 +124,10 @@ public class GameForm extends JFrame {
                         updateState();
                     } else {
                         timer.stop();
-                        // TODO: to next screen
+                        GameResultForm gameResultForm =
+                                new GameResultForm(new GameResultPresentationModel(presentationModel.getQuestionList()), appComponent);
+                        gameResultForm.initState();
+                        dispose();
                     }
                 }
             }
@@ -139,7 +143,6 @@ public class GameForm extends JFrame {
 
         // get random correct answer
         presentationModel.updateCorrectAnswerIndex();
-        System.out.println("Correct answer index :" + presentationModel.getCorrectAnswerIndex());
         switch (this.presentationModel.getCorrectAnswerIndex()) {
             case 1: {
                 this.answer1.setText(htmlToText(presentationModel.correctAnswer()));
@@ -169,9 +172,6 @@ public class GameForm extends JFrame {
     }
 
     public void updateStateWhenOutOfTime() {
-//        for (JToggleButton button : buttons) {
-//            button.setSelected(false);
-//        }
         buttonGroup.clearSelection();
 
         if (presentationModel.getUserAnswerIndex() != presentationModel.getCorrectAnswerIndex()) {

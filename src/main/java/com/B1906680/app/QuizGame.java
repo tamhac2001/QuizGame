@@ -1,14 +1,11 @@
 package com.B1906680.app;
 
-import com.B1906680.app.model.User;
 import com.B1906680.app.presentation.LoginForm;
-import com.B1906680.app.presentation_model.LoginPresentationModel;
-import com.B1906680.app.utils.AppInjector;
+import com.B1906680.app.utils.AppComponent;
+import com.B1906680.app.utils.DaggerAppComponent;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.FirebaseOptions;
-import com.google.inject.Guice;
-import com.google.inject.Injector;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -25,11 +22,11 @@ public class QuizGame {
         FirebaseApp.initializeApp(options);
 
 
-        Injector injector = Guice.createInjector(new AppInjector());
-        User user = injector.getProvider(User.class).get();
-        System.out.println(user);
-        LoginForm loginForm = new LoginForm(injector.getProvider(LoginPresentationModel.class).get());
+
+        AppComponent appComponent = DaggerAppComponent.create();
+        LoginForm loginForm = new LoginForm(appComponent.buildLoginPresentationModel(), appComponent);
         loginForm.initState();
+
 
     }
 }

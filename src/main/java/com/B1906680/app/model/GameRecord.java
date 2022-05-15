@@ -6,5 +6,5 @@ import org.joda.time.DateTime;
 @Value
 public class GameRecord {
     DateTime dateTime;
-    String point;
+    int correctAnswerCounter;
 }
